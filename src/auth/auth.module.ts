@@ -1,21 +1,26 @@
-// src/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { UsersModule } from '../users/users.module'; // Importar UsersModule
+import { UsersModule } from '../users/users.module'; // <-- Importe o módulo aqui
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { JwtStrategy } from './jwt.strategy'; // Não se esqueça de importar a estratégia
 
 @Module({
   imports: [
-    UsersModule, // Importar para que possamos usar o UsersService
+    // ESTA LINHA É A SOLUÇÃO PARA O SEU ERRO ATUAL.
+    // Ao importar o UsersModule, o AuthModule ganha acesso
+    // a tudo que o UsersModule exportou (neste caso, o UsersService).
+    UsersModule,
     PassportModule,
     JwtModule.register({
-      secret: '11TEMMIE_tobyfox22', // Mude isso para uma variável de ambiente em produção!
-      signOptions: { expiresIn: '30m' }, // Token expira em 30 minutos
+      secret: '22TEMMIE_tobyfox11', // Mude isso em produção!
+      signOptions: { expiresIn: '1h' }, // O token expira em 1 hora
     }),
   ],
-  providers: [AuthService],
   controllers: [AuthController],
+  // O AuthService precisa do UsersService e do JwtService
+  // A JwtStrategy será usada pelo Passport para validar os tokens
+  providers: [AuthService, JwtStrategy],
 })
 export class AuthModule {}
